@@ -8,6 +8,7 @@ const tileLegend = {
   W: { name: "water", color: "#2c6ea3", walkable: false },
   T: { name: "tree", color: "#1f5a2b", walkable: false },
   S: { name: "stairs", color: "#c9b26c", walkable: true },
+  B: { name: "boulder", color: "#6d3720", walkable: false }
 };
 
 const regions = {
@@ -28,7 +29,7 @@ const regions = {
       "WWWWWWWWWWWWWWWW",
     ],
     exits: {
-      "14,6": { region: "caves", x: 1, y: 5 },
+      "13,6": { region: "caves", x: 1, y: 5 },
     },
   },
   caves: {
@@ -41,7 +42,7 @@ const regions = {
       "WDDWDDWDDDWWWDDW",
       "WDDDDDDDDDDDDDDW",
       "WSDDDWDDDDDDDDDW",
-      "WDDDDWDDDTTTDDDW",
+      "WDDDDWDDDBBBDDDW",
       "WDDDDWDDDDDDDDDW",
       "WDDDDDDDDDWWDDDW",
       "WDDDDDDDDDDDDDDW",
@@ -66,6 +67,7 @@ class GameEngine {
       color: "#fce06b",
     };
     this.moveCooldown = 0;
+    this.justArrived = true;
     this.keys = new Set();
 
     this.regionName = document.getElementById("regionName");
@@ -110,7 +112,7 @@ class GameEngine {
     }
 
     const exit = this.region.exits[`${this.player.x},${this.player.y}`];
-    if (exit) {
+    if (exit && !this.justArrived) {
       this.changeRegion(exit.region, exit.x, exit.y);
     }
 
@@ -142,6 +144,7 @@ class GameEngine {
     this.player.x = nextX;
     this.player.y = nextY;
     this.player.facing = direction;
+    this.justArrived = false;
   }
 
   canWalk(x, y) {
@@ -157,6 +160,7 @@ class GameEngine {
     this.player.x = x;
     this.player.y = y;
     this.moveCooldown = 200;
+    this.justArrived = true;
   }
 
   render() {
@@ -180,6 +184,11 @@ class GameEngine {
           this.ctx.lineWidth = 2;
           this.ctx.strokeRect(x * TILE_SIZE + 5, y * TILE_SIZE + 5, 22, 22);
         }
+
+        if (tileKey === "B") {
+          this.ctx.fillStyle = "#000000";
+          this.ctx.fillRect(x * TILE_SIZE + 4, y * TILE_SIZE + 4, 24, 24);
+        }
       }
     }
 
@@ -197,7 +206,7 @@ class GameEngine {
     this.ctx.fillRect(px + 9, py + 6, 14, 14);
 
     this.ctx.fillStyle = "#1f2328";
-    const eyeOffset = this.player.facing === "left" ? 3 : this.player.facing === "right" ? 9 : 6;
+    const eyeOffset = this.player.facing === "left" ? 10 : this.player.facing === "right" ? 16 : 13;
     this.ctx.fillRect(px + eyeOffset, py + 11, 2, 2);
     this.ctx.fillRect(px + eyeOffset + 4, py + 11, 2, 2);
   }
