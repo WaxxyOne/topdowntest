@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Top-Down Adventure Engine</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="game-shell">
+        <canvas id="game" width="512" height="352" aria-label="Top-down adventure game"></canvas>
+      </section>
+      <aside class="panel">
+        <h1>Adventure Engine Demo</h1>
+        <p>Move with <strong>WASD</strong> or <strong>Arrow Keys</strong>.</p>
+        <p>Walk onto stair tiles to travel between regions.</p>
+        <dl>
+          <dt>Region</dt>
+          <dd id="regionName">-</dd>
+          <dt>Position</dt>
+          <dd id="position">-</dd>
+        </dl>
+      </aside>
+    </main>
+    <script src="game.js" type="module"></script>
+  </body>
+</html>
