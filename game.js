@@ -69,6 +69,10 @@ class GameEngine {
     this.moveCooldown = 0;
     this.justArrived = true;
     this.keys = new Set();
+    this.projectiles = [];
+
+    this.projectileSpeed = 280;
+    this.projectileRadius = 4;
 
     this.regionName = document.getElementById("regionName");
     this.position = document.getElementById("position");
@@ -76,9 +80,14 @@ class GameEngine {
 
   start() {
     window.addEventListener("keydown", (event) => {
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "a", "s", "d", "W", "A", "S", "D"].includes(event.key)) {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "a", "s", "d", "W", "A", "S", "D", " "].includes(event.key)) {
         event.preventDefault();
       }
+
+      if (event.code === "Space") {
+        this.shoot();
+      }
+
       this.keys.add(event.key.toLowerCase());
     });
 
@@ -110,6 +119,8 @@ class GameEngine {
         this.moveCooldown = 110;
       }
     }
+
+    this.updateProjectiles(delta);
 
     const exit = this.region.exits[`${this.player.x},${this.player.y}`];
     if (exit && !this.justArrived) {
@@ -155,12 +166,50 @@ class GameEngine {
     return tile?.walkable ?? false;
   }
 
+  shoot() {
+    const vectors = {
+      up: { x: 0, y: -1 },
+      down: { x: 0, y: 1 },
+      left: { x: -1, y: 0 },
+      right: { x: 1, y: 0 },
+    };
+
+    const direction = vectors[this.player.facing];
+    if (!direction) return;
+
+    this.projectiles.push({
+      x: this.player.x * TILE_SIZE + TILE_SIZE / 2,
+      y: this.player.y * TILE_SIZE + TILE_SIZE / 2,
+      vx: direction.x,
+      vy: direction.y,
+    });
+  }
+
+  updateProjectiles(delta) {
+    const maxX = MAP_WIDTH * TILE_SIZE;
+    const maxY = MAP_HEIGHT * TILE_SIZE;
+
+    this.projectiles = this.projectiles.filter((projectile) => {
+      projectile.x += projectile.vx * this.projectileSpeed * (delta / 1000);
+      projectile.y += projectile.vy * this.projectileSpeed * (delta / 1000);
+
+      const inBounds =
+        projectile.x >= this.projectileRadius &&
+        projectile.x <= maxX - this.projectileRadius &&
+        projectile.y >= this.projectileRadius &&
+        projectile.y <= maxY - this.projectileRadius;
+
+      return inBounds;
+    });
+  }
+
   changeRegion(regionKey, x, y) {
     this.region = this.regions[regionKey];
     this.player.x = x;
     this.player.y = y;
     this.moveCooldown = 200;
     this.justArrived = true;
+    this.projectiles = [];
   }
 
   render() {
@@ -193,6 +242,7 @@ class GameEngine {
     }
 
     this.drawPlayer();
+    this.drawProjectiles();
     this.drawGrid();
   }
 
@@ -227,6 +277,16 @@ class GameEngine {
       this.ctx.moveTo(0, y * TILE_SIZE);
       this.ctx.lineTo(MAP_WIDTH * TILE_SIZE, y * TILE_SIZE);
       this.ctx.stroke();
+    }
+  }
+
+  drawProjectiles() {
+    this.ctx.fillStyle = "#ffe0a3";
+
+    for (const projectile of this.projectiles) {
+      this.ctx.beginPath();
+      this.ctx.arc(projectile.x, projectile.y, this.projectileRadius, 0, Math.PI * 2);
+      this.ctx.fill();
     }
   }
 }
