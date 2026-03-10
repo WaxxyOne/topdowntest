@@ -68,6 +68,7 @@ class GameEngine {
     };
     this.moveCooldown = 0;
     this.justArrived = true;
+    this.firing = true;
     this.keys = new Set();
     this.projectiles = [];
 
@@ -84,7 +85,8 @@ class GameEngine {
         event.preventDefault();
       }
 
-      if (event.code === "Space") {
+      if (event.code === "Space" && !this.firing) {
+        this.firing = true;
         this.shoot();
       }
 
@@ -92,6 +94,10 @@ class GameEngine {
     });
 
     window.addEventListener("keyup", (event) => {
+      if (event.code === "Space") {
+        this.firing = false;
+      }
+
       this.keys.delete(event.key.toLowerCase());
     });
 
@@ -167,6 +173,8 @@ class GameEngine {
   }
 
   shoot() {
+    if (this.projectiles.length >= 3) return;
+
     const vectors = {
       up: { x: 0, y: -1 },
       down: { x: 0, y: 1 },
@@ -174,14 +182,15 @@ class GameEngine {
       right: { x: 1, y: 0 },
     };
 
+    const speed = 2;
     const direction = vectors[this.player.facing];
     if (!direction) return;
-
+    
     this.projectiles.push({
       x: this.player.x * TILE_SIZE + TILE_SIZE / 2,
       y: this.player.y * TILE_SIZE + TILE_SIZE / 2,
-      vx: direction.x,
-      vy: direction.y,
+      vx: direction.x * speed,
+      vy: direction.y * speed,
     });
   }
 
@@ -256,9 +265,10 @@ class GameEngine {
     this.ctx.fillRect(px + 9, py + 6, 14, 14);
 
     this.ctx.fillStyle = "#1f2328";
-    const eyeOffset = this.player.facing === "left" ? 10 : this.player.facing === "right" ? 16 : 13;
-    this.ctx.fillRect(px + eyeOffset, py + 11, 2, 2);
-    this.ctx.fillRect(px + eyeOffset + 4, py + 11, 2, 2);
+    const eyeOffsetx = this.player.facing === "left" ? 10 : this.player.facing === "right" ? 16 : 13;
+    const eyeOffsety = this.player.facing === "up" ? 9 : this.player.facing === "down" ? 13 : 11;
+    this.ctx.fillRect(px + eyeOffsetx, py + eyeOffsety, 2, 2);
+    this.ctx.fillRect(px + eyeOffsetx + 4, py + eyeOffsety, 2, 2);
   }
 
   drawGrid() {
