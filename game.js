@@ -183,11 +183,12 @@ class GameEngine {
     const nextX = this.player.x + offsets[direction].x;
     const nextY = this.player.y + offsets[direction].y;
 
+    this.player.facing = direction;
+
     if (!this.canWalk(nextX, nextY)) return;
 
     this.player.x = nextX;
-    this.player.y = nextY;
-    this.player.facing = direction;
+    this.player.y = nextY;    
     this.justArrived = false;
 
     this.checkEnemyContact();
