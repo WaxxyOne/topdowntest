@@ -8,6 +8,8 @@ A lightweight browser-based engine for Zelda-style top-down maps.
 - Tile-based region rendering on an HTML canvas.
 - Multiple regions with transition points (`exits`) for map travel.
 - Basic collision using tile walkability rules.
+- A roaming enemy spawns at one of three points per region.
+- Projectiles can defeat enemies; enemy contact triggers game over.
 
 ## Run locally
 
